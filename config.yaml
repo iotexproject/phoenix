@@ -4,4 +4,21 @@ pinata:
   secretApiKey: 2f14ebc83172fbde3d8e16145a43b995fb6eb871a55d94058a1ded5575670fa8
 server:
   port: 8080
-
+log:
+  zap:
+    level: info
+    encoding: json
+    disableStacktrace: true
+    outputPaths: ["stderr", "stdout"]
+    errorOutputPaths: ["stderr"]
+  stderrRedirectFile: error.log  
+subLogs:
+  server:
+    zap:
+      level: info
+      encoding: json
+      disableStacktrace: true
+      outputPaths: ["stderr", "stdout"]
+      errorOutputPaths: ["stderr"]
+    stderrRedirectFile: error.log
+    stdLogRedirect: true

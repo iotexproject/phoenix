@@ -2,27 +2,32 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/iotexproject/phoenix-gem/config"
+	"github.com/iotexproject/phoenix-gem/log"
 	"github.com/rs/cors"
+	"go.uber.org/zap"
 )
 
 // Server struct
 type Server struct {
-	cfg *config.Config
+	cfg config.Config
+	log *zap.Logger
 }
 
 // New return new Server instance
-func New(cfg *config.Config) *Server {
-	srv := &Server{cfg: cfg}
+func New(cfg config.Config) *Server {
+	srv := &Server{
+		cfg: cfg,
+		log: log.Logger("server"),
+	}
 	return srv
 }
 
-// Start start server
+// Start start the server
 func (srv *Server) Start() error {
 	r := chi.NewRouter()
 	// Basic CORS
@@ -37,7 +42,6 @@ func (srv *Server) Start() error {
 		Handler: http.DefaultServeMux,
 		Addr:    endpoint,
 	}
-
-	log.Println("listen at ", endpoint)
+	srv.log.Info("starting server", zap.String("endpoint", endpoint))
 	return s.ListenAndServe()
 }
