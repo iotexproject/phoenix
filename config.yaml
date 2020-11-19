@@ -1,0 +1,7 @@
+pinata:
+  uri: https://api.pinata.cloud/pinning/pinJSONToIPFS
+  apiKey: 3171d7f3aa6de68d1df2
+  secretApiKey: 2f14ebc83172fbde3d8e16145a43b995fb6eb871a55d94058a1ded5575670fa8
+server:
+  port: 8080
+
