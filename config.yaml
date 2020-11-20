@@ -24,3 +24,10 @@ subLogs:
       errorOutputPaths: ["stderr"]
     stderrRedirectFile: error.log
     stdLogRedirect: true
+storage:
+  provider: s3
+s3:
+  endpoint: http://localhost:9001
+  accessKey: AKIAIOSFODNN7EXAMPLE
+  secretKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  region: 

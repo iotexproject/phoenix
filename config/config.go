@@ -24,18 +24,29 @@ var (
 
 type (
 	Pinata struct {
-		Uri          string `yaml:"uri"`
-		ApiKey       string `yaml:"apiKey"`
-		SecretApiKey string `yaml:"secretApiKey"`
+		Uri          string `yaml:"uri" json:"uri"`
+		ApiKey       string `yaml:"apiKey" json:"apiKey"`
+		SecretApiKey string `yaml:"secretApiKey" json:"secretApiKey"`
 	}
 	Server struct {
-		Port string `yaml:"port"`
+		Port string `yaml:"port" json:"port"`
+	}
+	Storage struct {
+		Provider string `yaml:"provider" json:"provider"`
+	}
+	S3 struct {
+		EndPoint  string `yaml:"endpoint" json:"endpoint"`
+		AccessKey string `yaml:"accessKey" json:"accessKey"`
+		SecretKey string `yaml:"secretKey" json:"secretKey"`
+		Region    string `yaml:"region" json:"region"`
 	}
 	Config struct {
-		Pinata  Pinata                      `pinata`
-		Server  Server                      `yaml:"server"`
-		Log     log.GlobalConfig            `yaml:"log"`
-		SubLogs map[string]log.GlobalConfig `yaml:"subLogs"`
+		Pinata  Pinata                      `yaml:"pinata" json:"pinata"`
+		Server  Server                      `yaml:"server" json:"server"`
+		Log     log.GlobalConfig            `yaml:"log" yaml:"log"`
+		SubLogs map[string]log.GlobalConfig `yaml:"subLogs" json:"subLogs"`
+		Storage Storage                     `yaml:"storage" json:"storage"`
+		S3      S3                          `yaml:"s3" json:"s3"`
 	}
 )
 
