@@ -84,7 +84,11 @@ func InitLoggers(globalCfg GlobalConfig, subCfgs map[string]GlobalConfig, opts .
 			zapCfg := zap.NewProductionConfig()
 			cfg.Zap = &zapCfg
 		} else {
-			cfg.Zap.EncoderConfig = zap.NewProductionEncoderConfig()
+			if cfg.Zap.Development {
+				cfg.Zap.EncoderConfig = zap.NewDevelopmentEncoderConfig()
+			} else {
+				cfg.Zap.EncoderConfig = zap.NewProductionEncoderConfig()
+			}
 		}
 		logger, err := cfg.Zap.Build(opts...)
 		if err != nil {
@@ -99,6 +103,7 @@ func InitLoggers(globalCfg GlobalConfig, subCfgs map[string]GlobalConfig, opts .
 				return err
 			}
 		}
+		logger = logger.With(zap.String("sub", name))
 		_logMu.Lock()
 		if name == _globalLoggerName {
 			_globalCfg = cfg

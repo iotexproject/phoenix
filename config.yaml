@@ -8,14 +8,16 @@ log:
   zap:
     level: info
     encoding: json
-    disableStacktrace: true
+    disableCaller: true
+    disableStacktrace: false
     outputPaths: ["stderr", "stdout"]
     errorOutputPaths: ["stderr"]
   stderrRedirectFile: error.log  
 subLogs:
-  server:
+  handler:
     zap:
-      level: info
+      development: true
+      level: debug
       encoding: json
       disableStacktrace: true
       outputPaths: ["stderr", "stdout"]

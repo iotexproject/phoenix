@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/iotexproject/phoenix-gem/config"
+	"github.com/iotexproject/phoenix-gem/handler"
 	"github.com/iotexproject/phoenix-gem/log"
 	"github.com/rs/cors"
 	"go.uber.org/zap"
@@ -14,12 +15,12 @@ import (
 
 // Server struct
 type Server struct {
-	cfg config.Config
+	cfg *config.Config
 	log *zap.Logger
 }
 
 // New return new Server instance
-func New(cfg config.Config) *Server {
+func New(cfg *config.Config) *Server {
 	srv := &Server{
 		cfg: cfg,
 		log: log.Logger("server"),
@@ -29,6 +30,7 @@ func New(cfg config.Config) *Server {
 
 // Start start the server
 func (srv *Server) Start() error {
+	srv.log.Debug("enter server")
 	r := chi.NewRouter()
 	// Basic CORS
 	r.Use(middleware.RequestID)
@@ -38,8 +40,9 @@ func (srv *Server) Start() error {
 	r.Use(cors.AllowAll().Handler)
 
 	endpoint := fmt.Sprintf(":%s", srv.cfg.Server.Port)
+	h := handler.NewStorageHandler(srv.cfg)
 	s := &http.Server{
-		Handler: http.DefaultServeMux,
+		Handler: h.ServerMux(r),
 		Addr:    endpoint,
 	}
 	srv.log.Info("starting server", zap.String("endpoint", endpoint))

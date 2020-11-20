@@ -39,7 +39,7 @@ type (
 	}
 )
 
-func New(path string) (cfg Config, err error) {
+func New(path string) (cfg *Config, err error) {
 	body, err := ioutil.ReadFile(path)
 	if err != nil {
 		return cfg, errors.Wrap(err, "failed to read config content")
@@ -49,8 +49,8 @@ func New(path string) (cfg Config, err error) {
 	if strings.HasPrefix(extWithDot, ".") {
 		fileExt = extWithDot[1:]
 	}
-	cfg = Default
-	if err = Decode(body, &cfg, fileExt); err != nil {
+	cfg = &Default
+	if err = Decode(body, cfg, fileExt); err != nil {
 		return cfg, errors.Wrap(err, "failed to unmarshal config to struct")
 	}
 	return

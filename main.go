@@ -25,21 +25,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = initLogger(cfg)
-	if err != nil {
+	if err := log.InitLoggers(cfg.Log, cfg.SubLogs); err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: Failed to init logger: %v\n", err)
 		os.Exit(1)
 	}
+	log.L().Info("init logger")
+
 	srv := server.New(cfg)
 	if err = srv.Start(); err != nil {
 		log.L().Fatal("server start:", zap.Error(err))
 	}
-}
-
-func initLogger(cfg config.Config) error {
-	if err := log.InitLoggers(cfg.Log, cfg.SubLogs); err != nil {
-		fmt.Println("Cannot config global logger, use default one: ", err)
-		return err
-	}
-	return nil
 }
