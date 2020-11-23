@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/aws/aws-sdk-go v1.35.32
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi v1.5.0
 	github.com/go-chi/render v1.0.1
 	github.com/json-iterator/go v1.1.10

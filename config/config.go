@@ -29,7 +29,8 @@ type (
 		SecretApiKey string `yaml:"secretApiKey" json:"secretApiKey"`
 	}
 	Server struct {
-		Port string `yaml:"port" json:"port"`
+		Port       string `yaml:"port" json:"port"`
+		AuthSecret string `yaml:"authSecret" json:"authSecret"`
 	}
 	Storage struct {
 		Provider string `yaml:"provider" json:"provider"`
