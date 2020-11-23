@@ -4,6 +4,7 @@
 
 ```
 make build
+make run #build + run
 ```
 
 ## configure
@@ -24,4 +25,33 @@ s3:
   accessKey: AKIAIOSFODNN7EXAMPLE
   secretKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
   region: 
+```
+
+## test
+`test11` means bucket
+`foo.txt` means object in bucket
+### create pod
+```
+curl -H "Content-type: application/json" -d '{ "name": "test11"}' http://localhost:8080/pods
+```
+### delete pod
+```
+curl -X DELETE http://localhost:8080/pods/test11
+```
+### upload pea
+```
+curl -d 'foobar' http://localhost:8080/pea/test11/foo.txt
+```
+### get pea
+```
+curl http://localhost:8080/pea/test11/foo.txt
+```
+### delete pea
+```
+curl -X DELETE http://localhost:8080/pea/test11/foo.txt
+```
+
+### list pea
+```
+curl http://localhost:8080/pea/test11
 ```

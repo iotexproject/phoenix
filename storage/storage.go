@@ -25,6 +25,7 @@ type (
 	// Backend is a generic interface for storage backends
 	Backend interface {
 		CreateBucket(bucket string) (Object, error)
+		DeleteBucket(bucket string) error
 		ListObjects(bucket, prefix string) ([]Object, error)
 		GetObject(bucket, path string) (Object, error)
 		PutObject(bucket, path string, content []byte) error

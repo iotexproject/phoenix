@@ -3,6 +3,7 @@ package storage
 import (
 	"bytes"
 	"io/ioutil"
+	"net/http"
 	pathutil "path"
 	"strings"
 
@@ -53,6 +54,15 @@ func (b AmazonS3Backend) CreateBucket(bucket string) (Object, error) {
 	}
 	object.Path = s3Result.String()
 	return object, nil
+}
+
+// DeleteBucket Create a S3 bucket, at prefix
+func (b AmazonS3Backend) DeleteBucket(bucket string) error {
+	s3Input := &s3.DeleteBucketInput{
+		Bucket: aws.String(bucket),
+	}
+	_, err := b.Client.DeleteBucket(s3Input)
+	return err
 }
 
 // ListObjects lists all objects in Amazon S3 bucket, at prefix
@@ -113,9 +123,10 @@ func (b AmazonS3Backend) GetObject(bucket, path string) (Object, error) {
 // PutObject uploads an object to Amazon S3 bucket, at prefix
 func (b AmazonS3Backend) PutObject(bucket, path string, content []byte) error {
 	s3Input := &s3manager.UploadInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(pathutil.Join(b.Prefix, path)),
-		Body:   bytes.NewBuffer(content),
+		Bucket:      aws.String(bucket),
+		Key:         aws.String(pathutil.Join(b.Prefix, path)),
+		Body:        bytes.NewBuffer(content),
+		ContentType: aws.String(http.DetectContentType(content)),
 	}
 
 	if b.SSE != "" {
