@@ -5,6 +5,10 @@ pinata:
 server:
   port: 8080
   authSecret: "123456789a"
+  rateLimit:
+    requestLimit: 10
+    windowLength: 60 #second
+    
 log:
   zap:
     level: info

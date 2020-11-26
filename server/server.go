@@ -3,16 +3,19 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/httprate"
+	"github.com/rs/cors"
+	"go.uber.org/zap"
+
 	"github.com/iotexproject/phoenix-gem/config"
 	"github.com/iotexproject/phoenix-gem/handler"
 	"github.com/iotexproject/phoenix-gem/log"
 	"github.com/iotexproject/phoenix-gem/storage"
-	"github.com/rs/cors"
-	"go.uber.org/zap"
 )
 
 // Server struct
@@ -34,7 +37,10 @@ func New(cfg *config.Config) *Server {
 func (srv *Server) Start() error {
 	srv.log.Debug("enter server")
 	r := chi.NewRouter()
-	// Basic CORS
+	// middleware
+	if srv.cfg.Server.RateLimit.RequestLimit > 0 && srv.cfg.Server.RateLimit.WindowLength > 0 {
+		r.Use(httprate.LimitByIP(srv.cfg.Server.RateLimit.RequestLimit, time.Duration(srv.cfg.Server.RateLimit.WindowLength)*time.Second))
+	}
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)

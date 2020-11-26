@@ -28,9 +28,14 @@ type (
 		ApiKey       string `yaml:"apiKey" json:"apiKey"`
 		SecretApiKey string `yaml:"secretApiKey" json:"secretApiKey"`
 	}
+	RateLimit struct {
+		RequestLimit int `yaml:"requestLimit" json:"requestLimit"`
+		WindowLength int `yaml:"windowLength" json:"windowLength"`
+	}
 	Server struct {
-		Port       string `yaml:"port" json:"port"`
-		AuthSecret string `yaml:"authSecret" json:"authSecret"`
+		Port       string    `yaml:"port" json:"port"`
+		AuthSecret string    `yaml:"authSecret" json:"authSecret"`
+		RateLimit  RateLimit `yaml:"rateLimit" json:"rateLimit"`
 	}
 	Storage struct {
 		Provider string `yaml:"provider" json:"provider"`
