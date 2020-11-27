@@ -6,9 +6,15 @@ server:
   port: 8080
   authSecret: "123456789a"
   rateLimit:
+    enable: true
     requestLimit: 10
     windowLength: 60 #second
-    
+  cors:
+    enable: true
+    allowedOrigins: ["*"]
+    allowedMethods: ["GET", "POST"]
+    allowedHeaders: ["X-Custom-Header", "X-Foobar"]
+
 log:
   zap:
     level: info
