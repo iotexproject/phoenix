@@ -8,6 +8,7 @@ require (
 	github.com/go-chi/chi v1.5.0
 	github.com/go-chi/httprate v0.4.0
 	github.com/go-chi/render v1.0.1
+	github.com/iotexproject/go-pkgs v0.1.4
 	github.com/json-iterator/go v1.1.10
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
