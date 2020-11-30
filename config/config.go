@@ -29,9 +29,10 @@ type (
 		SecretApiKey string `yaml:"secretApiKey" json:"secretApiKey"`
 	}
 	RateLimit struct {
-		Enable       bool `yaml:"enable" json:"enable"`
-		RequestLimit int  `yaml:"requestLimit" json:"requestLimit"`
-		WindowLength int  `yaml:"windowLength" json:"windowLength"`
+		Enable       bool   `yaml:"enable" json:"enable"`
+		Key          string `yaml:"key" json:"key"`
+		RequestLimit int    `yaml:"requestLimit" json:"requestLimit"`
+		WindowLength int    `yaml:"windowLength" json:"windowLength"`
 	}
 	Cors struct {
 		Enable         bool     `yaml:"enable" json:"enable"`
@@ -40,10 +41,9 @@ type (
 		AllowedHeaders []string `yaml:"allowedHeaders" json:"allowedHeaders"`
 	}
 	Server struct {
-		Port       string    `yaml:"port" json:"port"`
-		AuthSecret string    `yaml:"authSecret" json:"authSecret"`
-		RateLimit  RateLimit `yaml:"rateLimit" json:"rateLimit"`
-		Cors       Cors      `yaml:"cors" json:"cors"`
+		Port      string    `yaml:"port" json:"port"`
+		RateLimit RateLimit `yaml:"rateLimit" json:"rateLimit"`
+		Cors      Cors      `yaml:"cors" json:"cors"`
 	}
 	Storage struct {
 		Provider string `yaml:"provider" json:"provider"`
