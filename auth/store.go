@@ -1,4 +1,4 @@
-package db
+package auth
 
 import (
 	"context"
@@ -45,7 +45,13 @@ func GetStoreCtx(ctx context.Context) (Store, bool) {
 }
 
 func NewStore(name, region, endpoint, key, token string) Store {
-	return &store{name, region, endpoint, key, token}
+	return &store{
+		name:     name,
+		region:   region,
+		endpoint: endpoint,
+		key:      key,
+		token:    token,
+	}
 }
 
 func (s *store) Name() string {

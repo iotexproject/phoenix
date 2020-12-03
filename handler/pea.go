@@ -11,11 +11,11 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"go.uber.org/zap"
+
 	"github.com/iotexproject/phoenix-gem/auth"
-	"github.com/iotexproject/phoenix-gem/db"
 	"github.com/iotexproject/phoenix-gem/log"
 	"github.com/iotexproject/phoenix-gem/storage"
-	"go.uber.org/zap"
 )
 
 type peaHandler struct {
@@ -53,7 +53,7 @@ func (h *peaHandler) CreateObject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	store, ok := db.GetStoreCtx(ctx)
+	store, ok := auth.GetStoreCtx(ctx)
 	if !ok {
 		renderJSON(w, http.StatusBadRequest, H{"message": ErrorStoreCtx.Error()})
 		return
@@ -94,7 +94,7 @@ func (h *peaHandler) GetObject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	store, ok := db.GetStoreCtx(ctx)
+	store, ok := auth.GetStoreCtx(ctx)
 	if !ok {
 		renderJSON(w, http.StatusBadRequest, H{"message": ErrorStoreCtx.Error()})
 		return
@@ -130,7 +130,7 @@ func (h *peaHandler) GetObjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	store, ok := db.GetStoreCtx(ctx)
+	store, ok := auth.GetStoreCtx(ctx)
 	if !ok {
 		renderJSON(w, http.StatusBadRequest, H{"message": ErrorStoreCtx.Error()})
 		return
@@ -170,7 +170,7 @@ func (h *peaHandler) DeleteObject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	store, ok := db.GetStoreCtx(ctx)
+	store, ok := auth.GetStoreCtx(ctx)
 	if !ok {
 		renderJSON(w, http.StatusBadRequest, H{"message": ErrorStoreCtx.Error()})
 		return

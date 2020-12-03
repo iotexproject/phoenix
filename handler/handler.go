@@ -10,11 +10,11 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/iotexproject/phoenix-gem/db"
 	"github.com/iotexproject/phoenix-gem/handler/middleware"
 	"github.com/iotexproject/phoenix-gem/storage"
 	"go.uber.org/zap"
 
+	"github.com/iotexproject/phoenix-gem/auth"
 	"github.com/iotexproject/phoenix-gem/config"
 	"github.com/iotexproject/phoenix-gem/log"
 )
@@ -57,7 +57,7 @@ func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
 func (h *StorageHandler) simpleStore(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		ctx = db.WithStoreCtx(ctx, db.NewStore("s3", "a", "http://localhost:9001", "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"))
+		ctx = auth.WithStoreCtx(ctx, auth.NewStore("s3", "a", "http://localhost:9001", "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

@@ -13,7 +13,8 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/iotexproject/phoenix-gem/db"
+
+	"github.com/iotexproject/phoenix-gem/auth"
 )
 
 type (
@@ -63,7 +64,7 @@ func objectPathIsInvalid(path string) bool {
 	return strings.Contains(path, "/") || path == ""
 }
 
-func NewStorage(store db.Store) (Backend, error) {
+func NewStorage(store auth.Store) (Backend, error) {
 	var provider Backend
 	var err error
 	switch store.Name() {
