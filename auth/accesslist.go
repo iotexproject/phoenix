@@ -9,7 +9,13 @@ package auth
 import (
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/iotexproject/iotex-antenna-go/v2/jwt"
+)
+
+// const
+const (
+	Bucket = "Bucket"
+	Object = "Object"
 )
 
 // Context keys
@@ -27,30 +33,29 @@ func (k *contextKey) String() string {
 }
 
 type Claims struct {
-	Scope string `json:"scope"`
-	jwt.StandardClaims
+	*jwt.JWT
 }
 
-func (c *Claims) AllowedPodsCreate() bool {
-	return strings.Contains(c.Scope, "create:pods")
+func (c *Claims) AllowCreate() bool {
+	return strings.Contains(c.Scope, jwt.CREATE)
 }
 
-func (c *Claims) AllowedPodsRead() bool {
-	return strings.Contains(c.Scope, "read:pods")
+func (c *Claims) AllowRead() bool {
+	return strings.Contains(c.Scope, jwt.READ)
 }
 
-func (c *Claims) AllowedPodsDelete() bool {
-	return strings.Contains(c.Scope, "delete:pods")
+func (c *Claims) AllowDelete() bool {
+	return strings.Contains(c.Scope, jwt.DELETE)
 }
 
-func (c *Claims) AllowedPeaWrite() bool {
-	return strings.Contains(c.Scope, "write:pea")
+func (c *Claims) AllowWrite() bool {
+	return strings.Contains(c.Scope, jwt.UPDATE)
 }
 
-func (c *Claims) AllowedPeaRead() bool {
-	return strings.Contains(c.Scope, "read:pea")
+func (c *Claims) IsBucket() bool {
+	return strings.Contains(c.Subject, Bucket)
 }
 
-func (c *Claims) AllowedPeaDelete() bool {
-	return strings.Contains(c.Scope, "delete:pea")
+func (c *Claims) IsObject() bool {
+	return strings.Contains(c.Subject, Object)
 }
