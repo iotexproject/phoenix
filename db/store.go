@@ -11,16 +11,24 @@ type (
 		// Name is the name of the store
 		Name() string
 
+		// Region is the region where the storage is located
+		Region() string
+
 		// Endpoint is the endpoint URL
 		Endpoint() string
+
+		// AccessKey is the key/ID to access the endpoint
+		AccessKey() string
 
 		// AccessToken is the token to access the endpoint
 		AccessToken() string
 	}
-	
+
 	store struct {
 		name     string
+		region   string
 		endpoint string
+		key      string
 		token    string
 	}
 )
@@ -40,8 +48,16 @@ func (s *store) Name() string {
 	return s.name
 }
 
+func (s *store) Region() string {
+	return s.region
+}
+
 func (s *store) Endpoint() string {
 	return s.endpoint
+}
+
+func (s *store) AccessKey() string {
+	return s.key
 }
 
 func (s *store) AccessToken() string {

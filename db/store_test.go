@@ -12,7 +12,9 @@ func TestGetStoreCtx(t *testing.T) {
 
 	s := &store{
 		name:     "s3",
+		region:   "us-east",
 		endpoint: "s3/abcdef",
+		key:      "AKIAIOSFODNN7EXAMPLE",
 		token:    "E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=",
 	}
 
@@ -21,6 +23,8 @@ func TestGetStoreCtx(t *testing.T) {
 	s1, ok := GetStoreCtx(ctx)
 	r.True(ok)
 	r.Equal(s.name, s1.Name())
+	r.Equal(s.region, s1.Region())
 	r.Equal(s.endpoint, s1.Endpoint())
+	r.Equal(s.key, s1.AccessKey())
 	r.Equal(s.token, s1.AccessToken())
 }
