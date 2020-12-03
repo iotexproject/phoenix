@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/iotexproject/phoenix-gem/auth"
+	"github.com/iotexproject/phoenix-gem/db"
 	"github.com/iotexproject/phoenix-gem/log"
 	"github.com/iotexproject/phoenix-gem/storage"
 	"go.uber.org/zap"
@@ -52,7 +53,18 @@ func (h *podsHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := h.storage.CreateBucket(item.Name)
+	store, ok := db.GetStoreCtx(ctx)
+	if !ok {
+		renderJSON(w, http.StatusBadRequest, H{"message": ErrorStoreCtx.Error()})
+		return
+	}
+	storage, err := storage.NewStorage(store)
+	if err != nil {
+		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
+		return
+	}
+
+	_, err = storage.CreateBucket(item.Name)
 	if err != nil {
 		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
 		return
@@ -76,8 +88,20 @@ func (h *podsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		renderJSON(w, http.StatusForbidden, H{"message": ErrorPermissionDenied.Error()})
 		return
 	}
+
+	store, ok := db.GetStoreCtx(ctx)
+	if !ok {
+		renderJSON(w, http.StatusBadRequest, H{"message": ErrorStoreCtx.Error()})
+		return
+	}
+	storage, err := storage.NewStorage(store)
+	if err != nil {
+		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
+		return
+	}
+
 	bucket := chi.URLParam(r, "bucket")
-	err := h.storage.DeleteBucket(bucket)
+	err = storage.DeleteBucket(bucket)
 	if err != nil {
 		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
 		return

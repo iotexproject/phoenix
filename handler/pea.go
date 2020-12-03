@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/iotexproject/phoenix-gem/auth"
+	"github.com/iotexproject/phoenix-gem/db"
 	"github.com/iotexproject/phoenix-gem/log"
 	"github.com/iotexproject/phoenix-gem/storage"
 	"go.uber.org/zap"
@@ -52,6 +53,16 @@ func (h *peaHandler) CreateObject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	store, ok := db.GetStoreCtx(ctx)
+	if !ok {
+		renderJSON(w, http.StatusBadRequest, H{"message": ErrorStoreCtx.Error()})
+		return
+	}
+	storage, err := storage.NewStorage(store)
+	if err != nil {
+		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
+		return
+	}
 	bucket := chi.URLParam(r, "bucket")
 	path := chi.URLParam(r, "*")
 	content, err := ioutil.ReadAll(r.Body)
@@ -59,7 +70,7 @@ func (h *peaHandler) CreateObject(w http.ResponseWriter, r *http.Request) {
 		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
 		return
 	}
-	err = h.storage.PutObject(bucket, path, content)
+	err = storage.PutObject(bucket, path, content)
 	if err != nil {
 		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
 		return
@@ -83,9 +94,20 @@ func (h *peaHandler) GetObject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	store, ok := db.GetStoreCtx(ctx)
+	if !ok {
+		renderJSON(w, http.StatusBadRequest, H{"message": ErrorStoreCtx.Error()})
+		return
+	}
+	storage, err := storage.NewStorage(store)
+	if err != nil {
+		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
+		return
+	}
+
 	bucket := chi.URLParam(r, "bucket")
 	path := chi.URLParam(r, "*")
-	object, err := h.storage.GetObject(bucket, path)
+	object, err := storage.GetObject(bucket, path)
 	if err != nil {
 		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
 		return
@@ -108,8 +130,19 @@ func (h *peaHandler) GetObjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	store, ok := db.GetStoreCtx(ctx)
+	if !ok {
+		renderJSON(w, http.StatusBadRequest, H{"message": ErrorStoreCtx.Error()})
+		return
+	}
+	storage, err := storage.NewStorage(store)
+	if err != nil {
+		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
+		return
+	}
+
 	bucket := chi.URLParam(r, "bucket")
-	objects, err := h.storage.ListObjects(bucket, "")
+	objects, err := storage.ListObjects(bucket, "")
 	if err != nil {
 		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
 		return
@@ -137,9 +170,20 @@ func (h *peaHandler) DeleteObject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	store, ok := db.GetStoreCtx(ctx)
+	if !ok {
+		renderJSON(w, http.StatusBadRequest, H{"message": ErrorStoreCtx.Error()})
+		return
+	}
+	storage, err := storage.NewStorage(store)
+	if err != nil {
+		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
+		return
+	}
+
 	bucket := chi.URLParam(r, "bucket")
 	path := chi.URLParam(r, "*")
-	err := h.storage.DeleteObject(bucket, path)
+	err = storage.DeleteObject(bucket, path)
 	if err != nil {
 		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
 		return

@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/iotexproject/phoenix-gem/db"
 	"github.com/iotexproject/phoenix-gem/handler/middleware"
 	"github.com/iotexproject/phoenix-gem/storage"
 	"go.uber.org/zap"
@@ -37,6 +38,7 @@ func NewStorageHandler(cfg *config.Config, provider storage.Backend) *StorageHan
 func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.JWTTokenValid)
+		r.Use(h.simpleStore)
 		r.Route("/pods", func(r chi.Router) {
 			r.Post("/", h.podsHandler.Create)           //create bucket
 			r.Delete("/{bucket}", h.podsHandler.Delete) //delete bucket
@@ -49,4 +51,13 @@ func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
 		})
 	})
 	return r
+}
+
+// for testing
+func (h *StorageHandler) simpleStore(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		ctx = db.WithStoreCtx(ctx, db.NewStore("s3", "a", "http://localhost:9001", "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"))
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

@@ -44,6 +44,10 @@ func GetStoreCtx(ctx context.Context) (Store, bool) {
 	return store, ok
 }
 
+func NewStore(name, region, endpoint, key, token string) Store {
+	return &store{name, region, endpoint, key, token}
+}
+
 func (s *store) Name() string {
 	return s.name
 }

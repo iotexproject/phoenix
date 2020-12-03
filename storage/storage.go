@@ -11,6 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/iotexproject/phoenix-gem/db"
 )
 
 type (
@@ -58,4 +61,21 @@ func removePrefixFromObjectPath(prefix string, path string) string {
 
 func objectPathIsInvalid(path string) bool {
 	return strings.Contains(path, "/") || path == ""
+}
+
+func NewStorage(store db.Store) (Backend, error) {
+	var provider Backend
+	var err error
+	switch store.Name() {
+	case "s3":
+		scr := credentials.NewStaticCredentials(
+			store.AccessKey(),
+			store.AccessToken(),
+			"")
+		provider = NewAmazonS3BackendWithCredentials("", store.Region(), store.Endpoint(), "", scr)
+	default:
+		err = fmt.Errorf("storage provider `%s` not supported", store.Name())
+	}
+	return provider, err
+
 }

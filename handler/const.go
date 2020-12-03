@@ -18,6 +18,7 @@ import (
 var (
 	ErrorPermissionDenied = errors.New("Your don't have permission for this")
 	ErrorBodyEmpty        = errors.New("Body must be set")
+	ErrorStoreCtx         = errors.New("Failed to get store in context")
 )
 
 // H is a shortcut for map[string]interface{}
