@@ -43,7 +43,7 @@ func (h *podsHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//check scope permission
-	if !claims.AllowedPodsCreate() {
+	if !claims.AllowCreate() {
 		renderJSON(w, http.StatusForbidden, H{"message": ErrorPermissionDenied.Error()})
 		return
 	}
@@ -84,7 +84,7 @@ func (h *podsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//check scope permission
-	if !claims.AllowedPodsDelete() {
+	if !claims.AllowDelete() {
 		renderJSON(w, http.StatusForbidden, H{"message": ErrorPermissionDenied.Error()})
 		return
 	}

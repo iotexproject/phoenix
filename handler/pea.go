@@ -44,7 +44,7 @@ func (h *peaHandler) CreateObject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//check scope permission
-	if !claims.AllowedPeaWrite() {
+	if !claims.AllowWrite() {
 		renderJSON(w, http.StatusForbidden, H{"message": ErrorPermissionDenied.Error()})
 		return
 	}
@@ -89,7 +89,7 @@ func (h *peaHandler) GetObject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//check scope permission
-	if !claims.AllowedPeaRead() {
+	if !claims.AllowRead() {
 		renderJSON(w, http.StatusForbidden, H{"message": ErrorPermissionDenied.Error()})
 		return
 	}
@@ -125,7 +125,7 @@ func (h *peaHandler) GetObjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//check scope permission
-	if !claims.AllowedPodsRead() {
+	if !claims.AllowRead() {
 		renderJSON(w, http.StatusForbidden, H{"message": ErrorPermissionDenied.Error()})
 		return
 	}
@@ -165,7 +165,7 @@ func (h *peaHandler) DeleteObject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//check scope permission
-	if !claims.AllowedPeaDelete() {
+	if !claims.AllowDelete() {
 		renderJSON(w, http.StatusForbidden, H{"message": ErrorPermissionDenied.Error()})
 		return
 	}
