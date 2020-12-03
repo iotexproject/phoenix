@@ -67,7 +67,7 @@ func NewStorage(store db.Store) (Backend, error) {
 	var provider Backend
 	var err error
 	switch store.Name() {
-	case "s3":
+	case "s3", "minio":
 		scr := credentials.NewStaticCredentials(
 			store.AccessKey(),
 			store.AccessToken(),
