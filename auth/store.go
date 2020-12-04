@@ -2,6 +2,10 @@ package auth
 
 import (
 	"context"
+
+	"github.com/golang/protobuf/proto"
+
+	"github.com/iotexproject/phoenix-gem/auth/storepb"
 )
 
 type (
@@ -22,6 +26,9 @@ type (
 
 		// AccessToken is the token to access the endpoint
 		AccessToken() string
+
+		// Serialize returns the serialized byte-stream
+		Serialize() ([]byte, error)
 	}
 
 	store struct {
@@ -72,4 +79,29 @@ func (s *store) AccessKey() string {
 
 func (s *store) AccessToken() string {
 	return s.token
+}
+
+func (s *store) Serialize() ([]byte, error) {
+	pb := &storepb.Store{
+		Name:     s.name,
+		Region:   s.region,
+		Endpoint: s.endpoint,
+		Key:      s.key,
+		Token:    s.token,
+	}
+	return proto.Marshal(pb)
+}
+
+func DeserializeToStore(buf []byte) (*store, error) {
+	pb := &storepb.Store{}
+	if err := proto.Unmarshal(buf, pb); err != nil {
+		return nil, err
+	}
+	return &store{
+		name:     pb.Name,
+		region:   pb.Region,
+		endpoint: pb.Endpoint,
+		key:      pb.Key,
+		token:    pb.Token,
+	}, nil
 }

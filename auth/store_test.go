@@ -28,3 +28,20 @@ func TestGetStoreCtx(t *testing.T) {
 	r.Equal(s.key, s1.AccessKey())
 	r.Equal(s.token, s1.AccessToken())
 }
+
+func TestStorePb(t *testing.T) {
+	r := require.New(t)
+
+	s := &store{
+		name:   "s3",
+		region: "us-east",
+		key:    "AKIAIOSFODNN7EXAMPLE",
+		token:  "E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=",
+	}
+
+	b, err := s.Serialize()
+	r.NoError(err)
+	s1, err := DeserializeToStore(b)
+	r.NoError(err)
+	r.Equal(s, s1)
+}
