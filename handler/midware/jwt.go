@@ -4,7 +4,7 @@
 // permitted by law, all liability for your use of the code is disclaimed. This source code is governed by Apache
 // License 2.0 that can be found in the LICENSE file.
 
-package middleware
+package midware
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 	"github.com/iotexproject/phoenix-gem/auth"
 )
 
-// JWTTokenValid operation middleware
+// JWTTokenValid operation midware
 func JWTTokenValid(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Get token from authorization header.

@@ -10,7 +10,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/iotexproject/phoenix-gem/handler/middleware"
+	"github.com/iotexproject/phoenix-gem/handler/midware"
 	"github.com/iotexproject/phoenix-gem/storage"
 	"go.uber.org/zap"
 
@@ -37,7 +37,7 @@ func NewStorageHandler(cfg *config.Config, provider storage.Backend) *StorageHan
 
 func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.JWTTokenValid)
+		r.Use(midware.JWTTokenValid)
 		r.Use(h.simpleStore)
 		r.Route("/pods", func(r chi.Router) {
 			r.Post("/", h.podsHandler.Create)           //create bucket
