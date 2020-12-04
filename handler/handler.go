@@ -24,21 +24,23 @@ type StorageHandler struct {
 	log         *zap.Logger
 	podsHandler *podsHandler
 	peaHandler  *peaHandler
+	cred        midware.Credential
 }
 
-func NewStorageHandler(cfg *config.Config, provider storage.Backend) *StorageHandler {
+func NewStorageHandler(cfg *config.Config, cred midware.Credential, provider storage.Backend) *StorageHandler {
 	return &StorageHandler{
 		cfg:         cfg,
 		log:         log.Logger("handler"),
 		podsHandler: newPodsHandler(provider),
 		peaHandler:  newPeaHandler(provider),
+		cred:        cred,
 	}
 }
 
 func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(midware.JWTTokenValid)
-		r.Use(h.simpleStore)
+		r.Use(h.cred.DoCredential)
 		r.Route("/pods", func(r chi.Router) {
 			r.Post("/", h.podsHandler.Create)           //create bucket
 			r.Delete("/{bucket}", h.podsHandler.Delete) //delete bucket

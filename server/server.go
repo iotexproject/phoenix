@@ -7,6 +7,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -19,7 +20,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/iotexproject/phoenix-gem/config"
+	"github.com/iotexproject/phoenix-gem/db"
 	"github.com/iotexproject/phoenix-gem/handler"
+	"github.com/iotexproject/phoenix-gem/handler/midware"
 	"github.com/iotexproject/phoenix-gem/log"
 	"github.com/iotexproject/phoenix-gem/storage"
 )
@@ -69,12 +72,19 @@ func (srv *Server) Start() error {
 		}))
 	}
 
+	// open db for user's storage endpoint
+	user := db.NewBoltDB("./user.db")
+	ctx := context.Background()
+	if err := user.Start(ctx); err != nil {
+		return err
+	}
+
 	endpoint := fmt.Sprintf(":%s", srv.cfg.Server.Port)
 	provider, err := srv.getProvider()
 	if err != nil {
 		return err
 	}
-	h := handler.NewStorageHandler(srv.cfg, provider)
+	h := handler.NewStorageHandler(srv.cfg, midware.NewCredential(user), provider)
 
 	s := &http.Server{
 		Handler: h.ServerMux(r),
