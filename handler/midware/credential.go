@@ -5,9 +5,11 @@ import (
 
 	"github.com/iotexproject/go-pkgs/crypto"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/iotexproject/phoenix-gem/auth"
 	"github.com/iotexproject/phoenix-gem/db"
+	"github.com/iotexproject/phoenix-gem/log"
 )
 
 type (
@@ -61,23 +63,28 @@ func (c *credential) DoCredential(next http.Handler) http.Handler {
 		// trustor is the address that registers endpoint with us
 		trustor, err := crypto.HexStringToPublicKey(claims.Issuer)
 		if err != nil {
+			log.L().Error(err.Error())
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			return
 		}
 
 		// check trustor's storage endpoint
 		name := trustor.Address().Hex()[2:] // remove 0x prefix
+
+		log.L().Debug("get store data", zap.String("name", name), zap.Any("claims", claims))
 		store, err := c.GetStore(name, claims.Subject)
-		switch errors.Cause(err) {
-		case nil:
-			// pass the store to next handler
-			ctx := auth.WithStoreCtx(ctx, store)
-			next.ServeHTTP(w, r.WithContext(ctx))
-		case db.ErrBucketNotExist, db.ErrNotExist:
-			http.Error(w, http.StatusText(http.StatusNoContent), http.StatusNoContent)
-		default:
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		if err != nil {
+			log.L().Error(err.Error())
+			switch errors.Cause(err) {
+			case db.ErrBucketNotExist, db.ErrNotExist:
+				http.Error(w, http.StatusText(http.StatusNoContent), http.StatusNoContent)
+			default:
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			}
+			return
 		}
+		ctx = auth.WithStoreCtx(ctx, store)
+		next.ServeHTTP(w, r.WithContext(ctx))
 		return
 	})
 }

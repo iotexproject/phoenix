@@ -26,10 +26,9 @@ type podObject struct {
 	Name string `json:"name"`
 }
 
-func newPodsHandler(provider storage.Backend) *podsHandler {
+func newPodsHandler() *podsHandler {
 	return &podsHandler{
-		log:     log.Logger("pods"),
-		storage: provider,
+		log: log.Logger("pods"),
 	}
 }
 
@@ -75,7 +74,7 @@ func (h *podsHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 // Delete delete pod in storage
-// example: curl  -H "Authorization: Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MDY1NDk3OTcsImlhdCI6MTYwNjQ2MzM5NywiaXNzIjoiMHgwNGZjZWQxYmFhNDEwODZmZTU2OGE0OGEzMzhhZjEwNGVlMTk3NzgwNDNkOThjMjI2NTU3MzRkYzg4NTkwODYxYjI2OWRlMTg3M2I3ZjhmYWM0ZGE4NjdiMjRhN2M3NDczOWZmM2Q0NmY2ZDAzYzlkYWI4YzcxMDZiYWZiOTdhODA5Iiwic3ViIjoiZGVsZXRlOnBvZHMifQ.LVDnJPCql_0dlJj_mDqSjFZL9V46lWpp37aY_GCem3TR3625ZrZ-6mEEcNN4N94RW02fRm0AdwDbR2Iz0BJL_Q" -X DELETE http://localhost:8080/pods/test111
+// example: curl  -H "Authorization: Bearer jwttoken" -X DELETE http://localhost:8080/pods/test111
 func (h *podsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	claims, ok := ctx.Value(auth.TokenCtxKey).(*auth.Claims)

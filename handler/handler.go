@@ -11,10 +11,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/iotexproject/phoenix-gem/handler/midware"
-	"github.com/iotexproject/phoenix-gem/storage"
 	"go.uber.org/zap"
 
-	"github.com/iotexproject/phoenix-gem/auth"
 	"github.com/iotexproject/phoenix-gem/config"
 	"github.com/iotexproject/phoenix-gem/log"
 )
@@ -27,12 +25,12 @@ type StorageHandler struct {
 	cred        midware.Credential
 }
 
-func NewStorageHandler(cfg *config.Config, cred midware.Credential, provider storage.Backend) *StorageHandler {
+func NewStorageHandler(cfg *config.Config, cred midware.Credential) *StorageHandler {
 	return &StorageHandler{
 		cfg:         cfg,
 		log:         log.Logger("handler"),
-		podsHandler: newPodsHandler(provider),
-		peaHandler:  newPeaHandler(provider),
+		podsHandler: newPodsHandler(),
+		peaHandler:  newPeaHandler(),
 		cred:        cred,
 	}
 }
@@ -53,13 +51,4 @@ func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
 		})
 	})
 	return r
-}
-
-// for testing
-func (h *StorageHandler) simpleStore(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		ctx = auth.WithStoreCtx(ctx, auth.NewStore("s3", "a", "http://localhost:9001", "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"))
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
 }

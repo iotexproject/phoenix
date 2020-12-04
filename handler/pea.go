@@ -19,23 +19,21 @@ import (
 )
 
 type peaHandler struct {
-	log     *zap.Logger
-	storage storage.Backend
+	log *zap.Logger
 }
 
 type peaObject struct {
 	Name string `json:"name"`
 }
 
-func newPeaHandler(provider storage.Backend) *peaHandler {
+func newPeaHandler() *peaHandler {
 	return &peaHandler{
-		log:     log.Logger("pea"),
-		storage: provider,
+		log: log.Logger("pea"),
 	}
 }
 
 // CreateObject create pod in storage
-// example: curl  -H "Authorization: Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MDY1NTAzMjEsImlhdCI6MTYwNjQ2MzkyMSwiaXNzIjoiMHgwNGZjZWQxYmFhNDEwODZmZTU2OGE0OGEzMzhhZjEwNGVlMTk3NzgwNDNkOThjMjI2NTU3MzRkYzg4NTkwODYxYjI2OWRlMTg3M2I3ZjhmYWM0ZGE4NjdiMjRhN2M3NDczOWZmM2Q0NmY2ZDAzYzlkYWI4YzcxMDZiYWZiOTdhODA5Iiwic3ViIjoid3JpdGU6cGVhIn0.nEFMulTTwZgJLlFE7k_lhBCKo46VCKuqkuycsG2XsVYvoYwMhxnpfpX92nCX2nQJnsiru12IW0G5QgOc_JJEVw" -d 'foobar' http://localhost:8080/pea/test11/foo.txt
+// example: curl  -H "Authorization: Bearer jwttoken" -d 'foobar' http://localhost:8080/pea/test11/foo.txt
 func (h *peaHandler) CreateObject(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	claims, ok := ctx.Value(auth.TokenCtxKey).(*auth.Claims)
@@ -80,7 +78,7 @@ func (h *peaHandler) CreateObject(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetObject get pea object in storage
-// example: curl -H "Authorization: Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MDY1NTA2OTUsImlhdCI6MTYwNjQ2NDI5NSwiaXNzIjoiMHgwNGZjZWQxYmFhNDEwODZmZTU2OGE0OGEzMzhhZjEwNGVlMTk3NzgwNDNkOThjMjI2NTU3MzRkYzg4NTkwODYxYjI2OWRlMTg3M2I3ZjhmYWM0ZGE4NjdiMjRhN2M3NDczOWZmM2Q0NmY2ZDAzYzlkYWI4YzcxMDZiYWZiOTdhODA5Iiwic3ViIjoicmVhZDpwZWEifQ.VonbuRLKAUmHvVVdAs5Rf5d7TcPOZnWO89wMFIVLnh3jeBs77Qkg8w8_v0TMyaHA2V8OTQhOfqyWw54C6gGfyg" http://localhost:8080/pea/test11/foo.txt
+// example: curl -H "Authorization: Bearer jwttoken" http://localhost:8080/pea/test11/foo.txt
 func (h *peaHandler) GetObject(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	claims, ok := ctx.Value(auth.TokenCtxKey).(*auth.Claims)
@@ -116,7 +114,7 @@ func (h *peaHandler) GetObject(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetObjects get pea objects with bucket in storage
-// example: curl -H "Authorization: Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MDY1NTE0MzgsImlhdCI6MTYwNjQ2NTAzOCwiaXNzIjoiMHgwNGZjZWQxYmFhNDEwODZmZTU2OGE0OGEzMzhhZjEwNGVlMTk3NzgwNDNkOThjMjI2NTU3MzRkYzg4NTkwODYxYjI2OWRlMTg3M2I3ZjhmYWM0ZGE4NjdiMjRhN2M3NDczOWZmM2Q0NmY2ZDAzYzlkYWI4YzcxMDZiYWZiOTdhODA5Iiwic3ViIjoicmVhZDpwb2RzIn0.EdHjnkgudRBx373V6bFpA5w1dYLZmHcfkM-d7ZYqBYq3uG6W2oY0ZBpkLOPyElQe4C2r4Ual09N7AHOgVuJuLg" http://localhost:8080/pea/test11
+// example: curl -H "Authorization: Bearer jwttoken" http://localhost:8080/pea/test11
 func (h *peaHandler) GetObjects(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	claims, ok := ctx.Value(auth.TokenCtxKey).(*auth.Claims)
@@ -156,7 +154,7 @@ func (h *peaHandler) GetObjects(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteObject delete pea object in storage
-// example: curl -H "Authorization: Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MDY1NTEwMzksImlhdCI6MTYwNjQ2NDYzOSwiaXNzIjoiMHgwNGZjZWQxYmFhNDEwODZmZTU2OGE0OGEzMzhhZjEwNGVlMTk3NzgwNDNkOThjMjI2NTU3MzRkYzg4NTkwODYxYjI2OWRlMTg3M2I3ZjhmYWM0ZGE4NjdiMjRhN2M3NDczOWZmM2Q0NmY2ZDAzYzlkYWI4YzcxMDZiYWZiOTdhODA5Iiwic3ViIjoiZGVsZXRlOnBlYSJ9.659pN1RgCLjgGCwrSvZHpnlWVEKjj6YDJWdObCAR14p7Gr9lck-E9m7-U3stRm10jYAjUVQFUUQtJNzWLxv3mQ" -X DELETE http://localhost:8080/pea/test11/foo.txt
+// example: curl -H "Authorization: Bearer jwttoken" -X DELETE http://localhost:8080/pea/test11/foo.txt
 func (h *peaHandler) DeleteObject(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	claims, ok := ctx.Value(auth.TokenCtxKey).(*auth.Claims)

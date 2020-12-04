@@ -44,23 +44,13 @@ type (
 		Port      string    `yaml:"port" json:"port"`
 		RateLimit RateLimit `yaml:"rateLimit" json:"rateLimit"`
 		Cors      Cors      `yaml:"cors" json:"cors"`
-	}
-	Storage struct {
-		Provider string `yaml:"provider" json:"provider"`
-	}
-	S3 struct {
-		EndPoint  string `yaml:"endpoint" json:"endpoint"`
-		AccessKey string `yaml:"accessKey" json:"accessKey"`
-		SecretKey string `yaml:"secretKey" json:"secretKey"`
-		Region    string `yaml:"region" json:"region"`
+		DBPath    string    `yaml:"dbPath" json:"dbPath"`
 	}
 	Config struct {
 		Pinata  Pinata                      `yaml:"pinata" json:"pinata"`
 		Server  Server                      `yaml:"server" json:"server"`
 		Log     log.GlobalConfig            `yaml:"log" yaml:"log"`
 		SubLogs map[string]log.GlobalConfig `yaml:"subLogs" json:"subLogs"`
-		Storage Storage                     `yaml:"storage" json:"storage"`
-		S3      S3                          `yaml:"s3" json:"s3"`
 	}
 )
 
