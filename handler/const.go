@@ -24,6 +24,10 @@ var (
 // H is a shortcut for map[string]interface{}
 type H map[string]interface{}
 
+type podObject struct {
+	Name string `json:"name"`
+}
+
 func decodeJSON(r *http.Request, v interface{}) error {
 	defer io.Copy(ioutil.Discard, r.Body)
 	return json.NewDecoder(r.Body).Decode(v)
