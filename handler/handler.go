@@ -40,6 +40,7 @@ func NewStorageHandler(cfg *config.Config, cred midware.Credential) *StorageHand
 func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(midware.JWTTokenValid)
+		r.Get("/register/{backend}", h.RegisterStorage) //register storage
 		r.Route("/pods", func(r chi.Router) {
 			r.Post("/", h.CreateBucket)           //create bucket
 			r.Delete("/{bucket}", h.DeleteBucket) //delete bucket
@@ -69,7 +70,7 @@ func (h *StorageHandler) CreateBucket(w http.ResponseWriter, r *http.Request) {
 	}
 	item := &podObject{}
 	if err := decodeJSON(r, item); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
 		return
 	}
 
@@ -256,4 +257,40 @@ func (h *StorageHandler) createBackendForRequest(r *http.Request) (claims *auth.
 
 	statusCode = http.StatusOK
 	return
+}
+
+// RegisterStorage put storage into store
+// example: curl -H "Authorization: Bearer jwttoken" "http://localhost:8080/register/s3?region=www&endpoint=xxx&key=yyy&token=zzz"
+func (h *StorageHandler) RegisterStorage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	claims, ok := ctx.Value(auth.TokenCtxKey).(*auth.Claims)
+	if !ok {
+		renderJSON(w, http.StatusInternalServerError, H{"message": http.StatusText(http.StatusInternalServerError)})
+		return
+	}
+
+	//check scope permission
+	if !claims.AllowCreate() {
+		renderJSON(w, http.StatusForbidden, H{"message": ErrorPermissionDenied.Error()})
+		return
+	}
+	// trustor is the address that registers endpoint with us
+	trustor, err := crypto.HexStringToPublicKey(claims.Issuer)
+	if err != nil {
+		h.log.Error(err.Error())
+		renderJSON(w, http.StatusUnauthorized, H{"message": http.StatusText(http.StatusUnauthorized)})
+		return
+	}
+
+	// check trustor's storage endpoint
+	name := trustor.Address().Hex()[2:] // remove 0x prefix
+	backend := chi.URLParam(r, "backend")
+	store := auth.NewStore(backend, r.URL.Query().Get("region"), r.URL.Query().Get("endpoint"), r.URL.Query().Get("key"), r.URL.Query().Get("token"))
+
+	if err = h.cred.PutStore(name, backend, store); err != nil {
+		renderJSON(w, http.StatusInternalServerError, H{"message": err.Error()})
+		return
+	}
+
+	renderJSON(w, http.StatusOK, H{"message": "successful"})
 }
