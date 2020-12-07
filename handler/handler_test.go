@@ -90,7 +90,7 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		//register
 		endpoint := s3Server.URL
 		urlPath = "/register/s3?region=www&endpoint=" + endpoint + "&key=yyy&token=zzz"
-		res, body, err := testRequest("GET", ts.URL+urlPath, "", jwtToken, nil)
+		res, body, err := testRequest("POST", ts.URL+urlPath, "", jwtToken, nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)

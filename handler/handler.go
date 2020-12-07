@@ -40,7 +40,9 @@ func NewStorageHandler(cfg *config.Config, cred midware.Credential) *StorageHand
 func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(midware.JWTTokenValid)
-		r.Get("/register/{backend}", h.RegisterStorage) //register storage
+		r.Route("/register", func(r chi.Router) {
+			r.Post("/{backend}", h.RegisterStorage) //register storage endpoint
+		})
 		r.Route("/pods", func(r chi.Router) {
 			r.Post("/", h.CreateBucket)           //create bucket
 			r.Delete("/{bucket}", h.DeleteBucket) //delete bucket
