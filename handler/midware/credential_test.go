@@ -5,12 +5,10 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
-	"time"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
-	"github.com/iotexproject/go-pkgs/crypto"
-	"github.com/iotexproject/iotex-antenna-go/v2/jwt"
 	"github.com/iotexproject/phoenix-gem/auth"
 	"github.com/iotexproject/phoenix-gem/db"
 )
@@ -26,15 +24,15 @@ func TestCredential(t *testing.T) {
 		r.NoError(os.Remove(path))
 	}()
 
-	db := db.NewBoltDB(path)
-	r.NotNil(db)
+	d := db.NewBoltDB(path)
+	r.NotNil(d)
 	ctx := context.Background()
-	r.NoError(db.Start(ctx))
+	r.NoError(d.Start(ctx))
 	defer func() {
-		r.NoError(db.Stop(ctx))
+		r.NoError(d.Stop(ctx))
 	}()
 
-	c := NewCredential(db)
+	c := NewCredential(d)
 	user := "71099b90dDC322a773115295f560bD1Af02f777d"
 	tag := "s3"
 	s := auth.NewStore(
@@ -48,6 +46,11 @@ func TestCredential(t *testing.T) {
 	s1, err := c.GetStore(user, tag)
 	r.NoError(err)
 	r.Equal(s, s1)
+
+	r.NoError(c.DelStore(user, tag))
+	s1, err = c.GetStore(user, tag)
+	r.Equal(db.ErrNotExist, errors.Cause(err))
+	r.Nil(s1)
 }
 
 func Test_CredentialPutTestData(t *testing.T) {
@@ -77,18 +80,4 @@ func Test_CredentialPutTestData(t *testing.T) {
 	r.NoError(err)
 	r.Equal(s, s1)
 	r.NoError(db.Stop(ctx))
-}
-
-func Test_JwtData(t *testing.T) {
-	r := require.New(t)
-	key, _ := crypto.HexStringToPrivateKey("bc145bb9f00d55a3571e22660ef5fd1bfa596e272b80add2919735b82c273004")
-	issue := time.Now().Unix()
-	expire := time.Now().Add(time.Hour * 240).Unix()
-	subject := "s3"
-	scopes := []string{jwt.CREATE, jwt.DELETE, jwt.UPDATE, jwt.READ}
-	for _, scope := range scopes {
-		token, err := jwt.SignJWT(issue, expire, subject, scope, key)
-		r.NoError(err)
-		t.Logf("scope: %s, Issuer: %s,token : %s", scope, key.PublicKey().HexString(), token)
-	}
 }

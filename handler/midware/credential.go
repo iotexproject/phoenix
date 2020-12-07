@@ -12,6 +12,9 @@ type (
 
 		// PutStore puts user's store into db
 		PutStore(string, string, auth.Store) error
+
+		// DelStore deletes user's store from db
+		DelStore(string, string) error
 	}
 
 	credential struct {
@@ -39,4 +42,8 @@ func (c *credential) PutStore(user, tag string, store auth.Store) error {
 		return err
 	}
 	return c.Put(user, []byte(tag), bytes)
+}
+
+func (c *credential) DelStore(user, tag string) error {
+	return c.Delete(user, []byte(tag))
 }
