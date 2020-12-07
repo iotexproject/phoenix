@@ -7,13 +7,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/iotexproject/phoenix-gem/config"
 	"github.com/iotexproject/phoenix-gem/log"
 	"github.com/iotexproject/phoenix-gem/server"
-	"go.uber.org/zap"
 )
 
 const (
@@ -38,7 +42,31 @@ func main() {
 	log.L().Info("init logger")
 
 	srv := server.New(cfg)
-	if err = srv.Start(); err != nil {
-		log.L().Fatal("server start:", zap.Error(err))
+	go func() {
+		if err = srv.Start(); err != nil {
+			log.L().Fatal("server start:", zap.Error(err))
+		}
+	}()
+	handleShutdown(srv)
+}
+
+type Stopper interface {
+	Stop(context.Context) error
+}
+
+func handleShutdown(service ...Stopper) {
+	stop := make(chan os.Signal)
+	signal.Notify(stop, os.Interrupt, os.Kill)
+
+	// wait INT or KILL
+	<-stop
+	log.L().Info("shutting down ...")
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+	defer cancel()
+	for _, s := range service {
+		if err := s.Stop(ctx); err != nil {
+			log.L().Error("shutdown", zap.Error(err))
+		}
 	}
+	return
 }

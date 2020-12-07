@@ -27,8 +27,10 @@ import (
 
 // Server struct
 type Server struct {
-	cfg *config.Config
-	log *zap.Logger
+	*http.Server
+	cfg    *config.Config
+	log    *zap.Logger
+	userDB db.KVStore
 }
 
 // New return new Server instance
@@ -71,20 +73,25 @@ func (srv *Server) Start() error {
 	}
 
 	// open db for user's storage endpoint
-	user := db.NewBoltDB(srv.cfg.Server.DBPath)
-	ctx := context.Background()
-	if err := user.Start(ctx); err != nil {
+	srv.userDB = db.NewBoltDB(srv.cfg.Server.DBPath)
+	if err := srv.userDB.Start(context.Background()); err != nil {
+		srv.log.Error("start db", zap.Error(err))
 		return err
 	}
 
 	endpoint := fmt.Sprintf(":%s", srv.cfg.Server.Port)
-
-	h := handler.NewStorageHandler(srv.cfg, midware.NewCredential(user))
-
-	s := &http.Server{
+	h := handler.NewStorageHandler(srv.cfg, midware.NewCredential(srv.userDB))
+	srv.Server = &http.Server{
 		Handler: h.ServerMux(r),
 		Addr:    endpoint,
 	}
 	srv.log.Info("starting server", zap.String("endpoint", endpoint))
-	return s.ListenAndServe()
+	return srv.ListenAndServe()
+}
+
+func (srv *Server) Stop(ctx context.Context) error {
+	if err := srv.Shutdown(ctx); err != nil {
+		srv.log.Error("shutdown server", zap.Error(err))
+	}
+	return srv.userDB.Stop(ctx)
 }
