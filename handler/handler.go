@@ -135,7 +135,7 @@ func (h *StorageHandler) CreateObject(w http.ResponseWriter, r *http.Request) {
 	}
 	err = storage.PutObject(bucket, path, content)
 	if err != nil {
-		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
+		renderJSON(w, http.StatusInternalServerError, H{"message": err.Error()})
 		return
 	}
 	ret := H{"name": bucket, "path": path, "message": "successful"}

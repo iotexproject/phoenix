@@ -10,6 +10,7 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/iotexproject/go-pkgs v0.1.5-0.20201128191740-3f9b55cbea9b
 	github.com/iotexproject/iotex-antenna-go/v2 v2.4.2-0.20201128202745-31784a8b8ddd
+	github.com/johannesboyne/gofakes3 v0.0.0-20200716060623-6b2b4cb092cc
 	github.com/json-iterator/go v1.1.10
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.6.1
