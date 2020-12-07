@@ -11,13 +11,16 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/iotexproject/phoenix-gem/auth"
-	"github.com/iotexproject/phoenix-gem/handler/midware"
-	"github.com/iotexproject/phoenix-gem/storage"
+	"github.com/iotexproject/go-pkgs/crypto"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/iotexproject/phoenix-gem/auth"
 	"github.com/iotexproject/phoenix-gem/config"
+	"github.com/iotexproject/phoenix-gem/db"
+	"github.com/iotexproject/phoenix-gem/handler/midware"
 	"github.com/iotexproject/phoenix-gem/log"
+	"github.com/iotexproject/phoenix-gem/storage"
 )
 
 type StorageHandler struct {
@@ -37,7 +40,6 @@ func NewStorageHandler(cfg *config.Config, cred midware.Credential) *StorageHand
 func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(midware.JWTTokenValid)
-		r.Use(h.cred.DoCredential)
 		r.Route("/pods", func(r chi.Router) {
 			r.Post("/", h.CreateBucket)           //create bucket
 			r.Delete("/{bucket}", h.DeleteBucket) //delete bucket
@@ -223,12 +225,29 @@ func (h *StorageHandler) createBackendForRequest(r *http.Request) (claims *auth.
 		return
 	}
 
-	store, ok := auth.GetStoreCtx(ctx)
-	if !ok {
-		statusCode = http.StatusBadRequest
+	// trustor is the address that registers endpoint with us
+	trustor, err := crypto.HexStringToPublicKey(claims.Issuer)
+	if err != nil {
+		statusCode = http.StatusUnauthorized
 		return
 	}
-	backend, err := storage.NewStorage(store)
+
+	// check trustor's storage endpoint
+	name := trustor.Address().Hex()[2:] // remove 0x prefix
+	store, err := h.cred.GetStore(name, claims.Subject)
+	switch errors.Cause(err) {
+	case nil:
+		// continue
+		break
+	case db.ErrBucketNotExist, db.ErrNotExist:
+		statusCode = http.StatusNoContent
+		return
+	default:
+		statusCode = http.StatusInternalServerError
+		return
+	}
+
+	backend, err = storage.NewStorage(store)
 	if err != nil {
 		h.log.Error("failed to new storage", zap.Error(err))
 		statusCode = http.StatusServiceUnavailable
