@@ -65,16 +65,18 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 	t.Run("with no authorized", func(t *testing.T) {
 		//register
 		urlPath = "/register/s3?region=www&endpoint=xxx&key=yyy&token=zzz"
-		res, body := testRequest(t, ts, "GET", urlPath, "", "", nil)
+		res, body, err := testRequest("GET", ts.URL+urlPath, "", "", nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusUnauthorized)
 	})
 	t.Run("with error authorized", func(t *testing.T) {
 		//register
 		urlPath = "/register/s3?region=www&endpoint=xxx&key=yyy&token=zzz"
 		jwtToken = "xxxxxx"
-		res, body := testRequest(t, ts, "GET", urlPath, "", jwtToken, nil)
+		res, body, err := testRequest("GET", ts.URL+urlPath, "", jwtToken, nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusUnauthorized)
 	})
 	t.Run("with authorized", func(t *testing.T) {
@@ -88,48 +90,52 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		//register
 		endpoint := s3Server.URL
 		urlPath = "/register/s3?region=www&endpoint=" + endpoint + "&key=yyy&token=zzz"
-		res, body := testRequest(t, ts, "GET", urlPath, "", jwtToken, nil)
+		res, body, err := testRequest("GET", ts.URL+urlPath, "", jwtToken, nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
 		r.Contains(body, "successful")
 
 		//createBucket
 		urlPath = "/pods"
-		res, body = testRequest(t, ts, "POST", urlPath, "", jwtToken, bytes.NewReader([]byte(`{ "name": "test10"}`)))
+		res, body, err = testRequest("POST", ts.URL+urlPath, "", jwtToken, bytes.NewReader([]byte(`{ "name": "test10"}`)))
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
 		r.Contains(body, "successful")
 
 		//deleteBucket
-		t.Run("with error permission", func(t *testing.T) {
-			urlPath = "/pods/test10"
-			res, body = testRequest(t, ts, "DELETE", urlPath, "", jwtToken, nil)
-			t.Logf("status=> %v body => %s", res.StatusCode, body)
-			r.Equal(res.StatusCode, http.StatusForbidden)
-		})
-		t.Run("with correct permission", func(t *testing.T) {
-			jwtToken, err = jwt.SignJWT(issue, expire, subject, jwt.DELETE, key)
-			r.NoError(err)
-			res, body = testRequest(t, ts, "DELETE", urlPath, "", jwtToken, nil)
-			t.Logf("status=> %v body => %s", res.StatusCode, body)
-			r.Equal(res.StatusCode, http.StatusOK)
-			r.Contains(body, "successful")
-		})
+		urlPath = "/pods/test10"
+		res, body, err = testRequest("DELETE", ts.URL+urlPath, "", jwtToken, nil)
+		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
+		r.Equal(res.StatusCode, http.StatusForbidden)
+		r.Contains(body, ErrorPermissionDenied.Error())
+
+		delToken, err := jwt.SignJWT(issue, expire, subject, jwt.DELETE, key)
+		r.NoError(err)
+		res, body, err = testRequest("DELETE", ts.URL+urlPath, "", delToken, nil)
+		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
+		r.Equal(res.StatusCode, http.StatusOK)
+		r.Contains(body, "successful")
 
 		//after register bucket
 		urlPath = "/pods"
-		jwtToken, err = jwt.SignJWT(issue, expire, subject, jwt.CREATE, key)
 		r.NoError(err)
-		res, body = testRequest(t, ts, "POST", urlPath, "", jwtToken, bytes.NewReader([]byte(`{ "name": "test"}`)))
+		res, body, err = testRequest("POST", ts.URL+urlPath, "", jwtToken, bytes.NewReader([]byte(`{ "name": "test"}`)))
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
+		r.Contains(body, "successful")
 
 		//createObject
 		urlPath = "/pea/test/foobar.txt"
 		jwtToken, err = jwt.SignJWT(issue, expire, subject, jwt.UPDATE, key)
 		r.NoError(err)
-		res, body = testRequest(t, ts, "POST", urlPath, "", jwtToken, bytes.NewReader([]byte(`foobar`)))
+		res, body, err = testRequest("POST", ts.URL+urlPath, "", jwtToken, bytes.NewReader([]byte(`foobar`)))
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
 		r.Contains(body, "successful")
 
@@ -137,8 +143,9 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		urlPath = "/pea/test/foobar.txt"
 		jwtToken, err = jwt.SignJWT(issue, expire, subject, jwt.READ, key)
 		r.NoError(err)
-		res, body = testRequest(t, ts, "GET", urlPath, "", jwtToken, nil)
+		res, body, err = testRequest("GET", ts.URL+urlPath, "", jwtToken, nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
 		r.Contains(body, "foobar")
 
@@ -146,8 +153,9 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		urlPath = "/pea/test"
 		jwtToken, err = jwt.SignJWT(issue, expire, subject, jwt.READ, key)
 		r.NoError(err)
-		res, body = testRequest(t, ts, "GET", urlPath, "", jwtToken, nil)
+		res, body, err = testRequest("GET", ts.URL+urlPath, "", jwtToken, nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
 		r.Contains(body, "foobar.txt")
 
@@ -155,25 +163,22 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		urlPath = "/pea/test/foobar.txt"
 		jwtToken, err = jwt.SignJWT(issue, expire, subject, jwt.DELETE, key)
 		r.NoError(err)
-		res, body = testRequest(t, ts, "DELETE", urlPath, "", jwtToken, nil)
+		res, body, err = testRequest("DELETE", ts.URL+urlPath, "", jwtToken, nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
 		r.Contains(body, "foobar.txt")
 	})
-
 }
 
 func testRequest(
-	t *testing.T,
-	ts *httptest.Server,
 	method, path string,
 	contentType string,
 	jwtToken string,
-	body io.Reader) (*http.Response, string) {
-	req, err := http.NewRequest(method, ts.URL+path, body)
+	body io.Reader) (*http.Response, string, error) {
+	req, err := http.NewRequest(method, path, body)
 	if err != nil {
-		t.Fatal(err)
-		return nil, ""
+		return nil, "", err
 	}
 	if jwtToken != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", jwtToken))
@@ -185,16 +190,14 @@ func testRequest(
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
-		return nil, ""
+		return nil, "", err
 	}
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		t.Fatal(err)
-		return nil, ""
+		return nil, "", err
 	}
 	defer resp.Body.Close()
 
-	return resp, string(respBody)
+	return resp, string(respBody), nil
 }
