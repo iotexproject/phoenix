@@ -71,7 +71,7 @@ func (h *StorageHandler) CreateBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	item := &podObject{}
-	if err := decodeJSON(r, item); err != nil {
+	if err := decodeAndCloseRequest(r, item); err != nil {
 		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
 		return
 	}
@@ -288,7 +288,7 @@ func (h *StorageHandler) RegisterStorage(w http.ResponseWriter, r *http.Request)
 	name := trustor.Address().Hex()[2:] // remove 0x prefix
 
 	item := &registerObject{}
-	if err := decodeJSON(r, item); err != nil {
+	if err := decodeAndCloseRequest(r, item); err != nil {
 		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
 		return
 	}

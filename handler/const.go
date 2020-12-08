@@ -41,9 +41,11 @@ func (r *registerObject) Store() auth.Store {
 	return auth.NewStore(r.Name, r.Region, r.Endpoint, r.Key, r.Token)
 }
 
-func decodeJSON(r *http.Request, v interface{}) error {
-	defer io.Copy(ioutil.Discard, r.Body)
-	return json.NewDecoder(r.Body).Decode(v)
+func decodeAndCloseRequest(r *http.Request, v interface{}) error {
+	err := json.NewDecoder(r.Body).Decode(v)
+	io.Copy(ioutil.Discard, r.Body)
+	r.Body.Close()
+	return err
 }
 
 func renderJSON(w http.ResponseWriter, status int, v interface{}) {
