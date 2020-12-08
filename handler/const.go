@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/iotexproject/phoenix-gem/auth"
 	"github.com/iotexproject/phoenix-gem/json"
 	"github.com/pkg/errors"
 )
@@ -26,6 +27,18 @@ type H map[string]interface{}
 
 type podObject struct {
 	Name string `json:"name"`
+}
+
+type registerObject struct {
+	Name     string `json:"name"`
+	Region   string `json:"region"`
+	Endpoint string `json:"endpoint"`
+	Key      string `json:"key"`
+	Token    string `json:"token"`
+}
+
+func (r *registerObject) Store() auth.Store {
+	return auth.NewStore(r.Name, r.Region, r.Endpoint, r.Key, r.Token)
 }
 
 func decodeJSON(r *http.Request, v interface{}) error {

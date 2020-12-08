@@ -41,7 +41,7 @@ func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(midware.JWTTokenValid)
 		r.Route("/register", func(r chi.Router) {
-			r.Post("/{backend}", h.RegisterStorage) //register storage endpoint
+			r.Post("/", h.RegisterStorage) //register storage endpoint
 		})
 		r.Route("/pods", func(r chi.Router) {
 			r.Post("/", h.CreateBucket)           //create bucket
@@ -286,10 +286,15 @@ func (h *StorageHandler) RegisterStorage(w http.ResponseWriter, r *http.Request)
 
 	// check trustor's storage endpoint
 	name := trustor.Address().Hex()[2:] // remove 0x prefix
-	backend := chi.URLParam(r, "backend")
-	store := auth.NewStore(backend, r.URL.Query().Get("region"), r.URL.Query().Get("endpoint"), r.URL.Query().Get("key"), r.URL.Query().Get("token"))
 
-	if err = h.cred.PutStore(name, backend, store); err != nil {
+	item := &registerObject{}
+	if err := decodeJSON(r, item); err != nil {
+		renderJSON(w, http.StatusBadRequest, H{"message": err.Error()})
+		return
+	}
+
+	store := item.Store()
+	if err = h.cred.PutStore(name, store.Name(), store); err != nil {
 		renderJSON(w, http.StatusInternalServerError, H{"message": err.Error()})
 		return
 	}

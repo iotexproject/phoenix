@@ -61,20 +61,21 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 	rt := chi.NewRouter()
 	ts := httptest.NewServer(h.ServerMux(rt))
 	defer ts.Close()
+	registerData := bytes.NewReader([]byte(`{ "name": "s3", "region":"www", "endpoint":"xxx", "key":"yyy", "token":"zzz"}`))
 
 	t.Run("with no authorized", func(t *testing.T) {
 		//register
-		urlPath = "/register/s3?region=www&endpoint=xxx&key=yyy&token=zzz"
-		res, body, err := testRequest("GET", ts.URL+urlPath, "", "", nil)
+		urlPath = "/register"
+		res, body, err := testRequest("GET", ts.URL+urlPath, "", "", registerData)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusUnauthorized)
 	})
 	t.Run("with error authorized", func(t *testing.T) {
 		//register
-		urlPath = "/register/s3?region=www&endpoint=xxx&key=yyy&token=zzz"
+		urlPath = "/register"
 		jwtToken = "xxxxxx"
-		res, body, err := testRequest("GET", ts.URL+urlPath, "", jwtToken, nil)
+		res, body, err := testRequest("GET", ts.URL+urlPath, "", jwtToken, registerData)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusUnauthorized)
@@ -88,9 +89,10 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		r.NoError(err)
 
 		//register
-		endpoint := s3Server.URL
-		urlPath = "/register/s3?region=www&endpoint=" + endpoint + "&key=yyy&token=zzz"
-		res, body, err := testRequest("POST", ts.URL+urlPath, "", jwtToken, nil)
+		registerData = bytes.NewReader([]byte(`{ "name": "s3", "region":"www", "endpoint":"` + s3Server.URL + `", "key":"yyy", "token":"zzz"}`))
+
+		urlPath = "/register"
+		res, body, err := testRequest("POST", ts.URL+urlPath, "", jwtToken, registerData)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
