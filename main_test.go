@@ -1,4 +1,4 @@
-package handler
+package main
 
 import (
 	"bytes"
@@ -12,16 +12,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-chi/chi"
-	"github.com/johannesboyne/gofakes3"
-	"github.com/johannesboyne/gofakes3/backend/s3mem"
-
 	"github.com/iotexproject/go-pkgs/crypto"
 	"github.com/iotexproject/iotex-antenna-go/v2/jwt"
-	"github.com/iotexproject/phoenix-gem/config"
-	"github.com/iotexproject/phoenix-gem/db"
-	"github.com/iotexproject/phoenix-gem/handler/midware"
+	"github.com/johannesboyne/gofakes3"
+	"github.com/johannesboyne/gofakes3/backend/s3mem"
 	"github.com/stretchr/testify/require"
+
+	"github.com/iotexproject/phoenix-gem/config"
+	"github.com/iotexproject/phoenix-gem/handler"
+	"github.com/iotexproject/phoenix-gem/log"
+	"github.com/iotexproject/phoenix-gem/server"
 )
 
 const (
@@ -52,21 +52,26 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 	s3Server := fakeS3Server()
 	defer s3Server.Close()
 
-	cfg := &config.Default
-	user := db.NewBoltDB(path)
-	ctx := context.Background()
-	r.NoError(user.Start(ctx))
+	cfg, err := config.New("config.yaml")
+	r.NoError(err)
+	cfg.Server.DBPath = path
+	r.NoError(log.InitLoggers(cfg.Log, cfg.SubLogs))
 
-	h := NewStorageHandler(cfg, midware.NewCredential(user))
-	rt := chi.NewRouter()
-	ts := httptest.NewServer(h.ServerMux(rt))
-	defer ts.Close()
+	ts := server.New(cfg)
+	go func() {
+		ts.Start()
+	}()
+	defer func() {
+		ts.Shutdown(context.Background())
+	}()
+	time.Sleep(time.Second)
+	Addr := "http://127.0.0.1" + ts.Addr
 	registerData := bytes.NewReader([]byte(`{ "name": "s3", "region":"www", "endpoint":"xxx", "key":"yyy", "token":"zzz"}`))
 
 	t.Run("with no authorized", func(t *testing.T) {
 		//register
 		urlPath = "/register"
-		res, body, err := testRequest("GET", ts.URL+urlPath, "", "", registerData)
+		res, body, err := testRequest("GET", Addr+urlPath, "", "", registerData)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusUnauthorized)
@@ -75,7 +80,7 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		//register
 		urlPath = "/register"
 		jwtToken = "xxxxxx"
-		res, body, err := testRequest("GET", ts.URL+urlPath, "", jwtToken, registerData)
+		res, body, err := testRequest("GET", Addr+urlPath, "", jwtToken, registerData)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusUnauthorized)
@@ -89,10 +94,9 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		r.NoError(err)
 
 		//register
-		registerData = bytes.NewReader([]byte(`{ "name": "s3", "region":"www", "endpoint":"` + s3Server.URL + `", "key":"yyy", "token":"zzz"}`))
-
 		urlPath = "/register"
-		res, body, err := testRequest("POST", ts.URL+urlPath, "", jwtToken, registerData)
+		registerData = bytes.NewReader([]byte(`{ "name": "s3", "region":"www", "endpoint":"` + s3Server.URL + `", "key":"yyy", "token":"zzz"}`))
+		res, body, err := testRequest("POST", Addr+urlPath, "", jwtToken, registerData)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
@@ -100,7 +104,7 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 
 		//createBucket
 		urlPath = "/pods"
-		res, body, err = testRequest("POST", ts.URL+urlPath, "", jwtToken, bytes.NewReader([]byte(`{ "name": "test10"}`)))
+		res, body, err = testRequest("POST", Addr+urlPath, "", jwtToken, bytes.NewReader([]byte(`{ "name": "test10"}`)))
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
@@ -108,15 +112,15 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 
 		//deleteBucket
 		urlPath = "/pods/test10"
-		res, body, err = testRequest("DELETE", ts.URL+urlPath, "", jwtToken, nil)
+		res, body, err = testRequest("DELETE", Addr+urlPath, "", jwtToken, nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusForbidden)
-		r.Contains(body, ErrorPermissionDenied.Error())
+		r.Contains(body, handler.ErrorPermissionDenied.Error())
 
 		delToken, err := jwt.SignJWT(issue, expire, subject, jwt.DELETE, key)
 		r.NoError(err)
-		res, body, err = testRequest("DELETE", ts.URL+urlPath, "", delToken, nil)
+		res, body, err = testRequest("DELETE", Addr+urlPath, "", delToken, nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
@@ -125,7 +129,7 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		//after register bucket
 		urlPath = "/pods"
 		r.NoError(err)
-		res, body, err = testRequest("POST", ts.URL+urlPath, "", jwtToken, bytes.NewReader([]byte(`{ "name": "test"}`)))
+		res, body, err = testRequest("POST", Addr+urlPath, "", jwtToken, bytes.NewReader([]byte(`{ "name": "test"}`)))
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
@@ -135,7 +139,7 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		urlPath = "/pea/test/foobar.txt"
 		jwtToken, err = jwt.SignJWT(issue, expire, subject, jwt.UPDATE, key)
 		r.NoError(err)
-		res, body, err = testRequest("POST", ts.URL+urlPath, "", jwtToken, bytes.NewReader([]byte(`foobar`)))
+		res, body, err = testRequest("POST", Addr+urlPath, "", jwtToken, bytes.NewReader([]byte(`foobar`)))
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
@@ -145,7 +149,7 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		urlPath = "/pea/test/foobar.txt"
 		jwtToken, err = jwt.SignJWT(issue, expire, subject, jwt.READ, key)
 		r.NoError(err)
-		res, body, err = testRequest("GET", ts.URL+urlPath, "", jwtToken, nil)
+		res, body, err = testRequest("GET", Addr+urlPath, "", jwtToken, nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
@@ -155,7 +159,7 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		urlPath = "/pea/test"
 		jwtToken, err = jwt.SignJWT(issue, expire, subject, jwt.READ, key)
 		r.NoError(err)
-		res, body, err = testRequest("GET", ts.URL+urlPath, "", jwtToken, nil)
+		res, body, err = testRequest("GET", Addr+urlPath, "", jwtToken, nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
@@ -165,7 +169,7 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		urlPath = "/pea/test/foobar.txt"
 		jwtToken, err = jwt.SignJWT(issue, expire, subject, jwt.DELETE, key)
 		r.NoError(err)
-		res, body, err = testRequest("DELETE", ts.URL+urlPath, "", jwtToken, nil)
+		res, body, err = testRequest("DELETE", Addr+urlPath, "", jwtToken, nil)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)

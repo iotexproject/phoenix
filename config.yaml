@@ -6,7 +6,7 @@ server:
   port: 8080
   rateLimit:
     enable: true
-    requestLimit: 10
+    requestLimit: 30
     windowLength: 60 #second
   cors:
     enable: true
