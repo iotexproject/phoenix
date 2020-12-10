@@ -105,6 +105,43 @@ curl --request POST \
     "token":"zzz"
 }'
 ```  
+
+### UnRegister storage 
+
+**URL**
+
+`DELETE` http://localhost:8000/register/<name>
+
+**Description**
+
+remove registered storage from storage db.
+
+**Parameters**
+
+| Parameter | Description | Parameter type |
+| --- | --- | --- |
+| jwt token | authentication jwt token | header |
+| name | storage driver name, current support `s3`,`minio` | url |
+
+**Response Messages**
+
+- Response Code : `400`
+  - Response model : json containing error message
+
+- Response Code : `403` 
+  - Response model : json containing error message
+  - Reason: User don't have permission for this
+
+- Response Code : `200`
+  - Response model : json containing message successful
+
+**Example**
+```
+curl --request DELETE \
+  --url http://localhost:8000/register/s3 \
+  --header 'Authorization: Bearer <jwt token>' 
+```  
+
 ### Create bucket
 
 **URL**
@@ -282,12 +319,12 @@ fetch object list of a bucket .
   - Reason: User don't have permission for this
 
 - Response Code : `200`
-  - Response model :  object content
+  - Response model :  object list content
 
 **Example**
 ```
 curl --request GET \
-  --url http://localhost:8000/pods/test \
+  --url http://localhost:8000/pea/test \
   --header 'Authorization: Bearer <jwt token>' 
 ```  
 

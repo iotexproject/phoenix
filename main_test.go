@@ -71,7 +71,7 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 	t.Run("with no authorized", func(t *testing.T) {
 		//register
 		urlPath = "/register"
-		res, body, err := testRequest("GET", Addr+urlPath, "", "", registerData)
+		res, body, err := testRequest("POST", Addr+urlPath, "", "", registerData)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusUnauthorized)
@@ -80,7 +80,7 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		//register
 		urlPath = "/register"
 		jwtToken = "xxxxxx"
-		res, body, err := testRequest("GET", Addr+urlPath, "", jwtToken, registerData)
+		res, body, err := testRequest("POST", Addr+urlPath, "", jwtToken, registerData)
 		t.Logf("status=> %v body => %s", res.StatusCode, body)
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusUnauthorized)
@@ -174,6 +174,23 @@ func Test_HandlerWithS3Storage(t *testing.T) {
 		r.NoError(err)
 		r.Equal(res.StatusCode, http.StatusOK)
 		r.Contains(body, "foobar.txt")
+
+		//unregister
+		urlPath = "/register/s3"
+		jwtToken, err = jwt.SignJWT(issue, expire, subject, jwt.DELETE, key)
+		r.NoError(err)
+		res, body, err = testRequest("DELETE", Addr+urlPath, "", jwtToken, nil)
+		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
+		r.Equal(res.StatusCode, http.StatusOK)
+		r.Contains(body, "successful")
+
+		// createBucket fail test, after unregister
+		urlPath = "/pods"
+		res, body, err = testRequest("POST", Addr+urlPath, "", jwtToken, bytes.NewReader([]byte(`{ "name": "test10"}`)))
+		t.Logf("status=> %v body => %s", res.StatusCode, body)
+		r.NoError(err)
+		r.Equal(res.StatusCode, http.StatusNoContent)
 	})
 }
 

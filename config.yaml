@@ -11,7 +11,7 @@ server:
   cors:
     enable: true
     allowedOrigins: ["*"]
-    allowedMethods: ["GET", "POST"]
+    allowedMethods: ["GET", "POST", "DELETE"]
     allowedHeaders: ["X-Custom-Header", "X-Foobar"]
   dbPath: "./credential.db"
 
