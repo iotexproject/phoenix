@@ -26,10 +26,10 @@ import (
 type StorageHandler struct {
 	cfg  *config.Config
 	log  *zap.Logger
-	cred midware.Credential
+	cred auth.Credential
 }
 
-func NewStorageHandler(cfg *config.Config, cred midware.Credential) *StorageHandler {
+func NewStorageHandler(cfg *config.Config, cred auth.Credential) *StorageHandler {
 	return &StorageHandler{
 		cfg:  cfg,
 		log:  log.Logger("handler"),
@@ -40,6 +40,7 @@ func NewStorageHandler(cfg *config.Config, cred midware.Credential) *StorageHand
 func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(midware.JWTTokenValid)
+		r.Use(midware.RateLimit(h.cfg.Server.RateLimit)...)
 		r.Route("/register", func(r chi.Router) {
 			r.Post("/", h.RegisterStorage)             //register storage endpoint
 			r.Delete("/{driver}", h.UnRegisterStorage) //unregister storage endpoint

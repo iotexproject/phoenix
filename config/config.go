@@ -29,10 +29,10 @@ type (
 		SecretApiKey string `yaml:"secretApiKey" json:"secretApiKey"`
 	}
 	RateLimit struct {
-		Enable       bool   `yaml:"enable" json:"enable"`
-		Key          string `yaml:"key" json:"key"`
-		RequestLimit int    `yaml:"requestLimit" json:"requestLimit"`
-		WindowLength int    `yaml:"windowLength" json:"windowLength"`
+		Enable       bool     `yaml:"enable" json:"enable"`
+		LimitByKey   []string `yaml:"limitByKey" json:"limitByKey"` // support ["ip", "url", "user"]
+		RequestLimit int      `yaml:"requestLimit" json:"requestLimit"`
+		WindowLength int      `yaml:"windowLength" json:"windowLength"`
 	}
 	Cors struct {
 		Enable         bool     `yaml:"enable" json:"enable"`

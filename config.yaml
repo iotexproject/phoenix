@@ -4,15 +4,16 @@ pinata:
   secretApiKey: 2f14ebc83172fbde3d8e16145a43b995fb6eb871a55d94058a1ded5575670fa8
 server:
   port: 8080
-  rateLimit:
-    enable: true
-    requestLimit: 30
-    windowLength: 60 #second
-  cors:
-    enable: true
-    allowedOrigins: ["*"]
-    allowedMethods: ["GET", "POST", "DELETE"]
-    allowedHeaders: ["X-Custom-Header", "X-Foobar"]
+  # rateLimit:
+  #   enable: true
+  #   limitByKey: ["ip", "url",  "user"]
+  #   requestLimit: 30
+  #   windowLength: 60 #second
+  # cors:
+  #   enable: true
+  #   allowedOrigins: ["*"]
+  #   allowedMethods: ["GET", "POST", "DELETE"]
+  #   allowedHeaders: ["X-Custom-Header", "X-Foobar"]
   dbPath: "./credential.db"
 
 log:

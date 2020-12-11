@@ -35,7 +35,7 @@ func fakeS3Server() *httptest.Server {
 	return httptest.NewServer(faker.Server())
 }
 
-func Test_HandlerWithS3Storage(t *testing.T) {
+func Test_ServerWithS3Storage(t *testing.T) {
 	var jwtToken string
 	var urlPath string
 	var err error
