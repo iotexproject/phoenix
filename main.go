@@ -27,7 +27,7 @@ const (
 func main() {
 	configPath := os.Getenv(ConfigPath)
 	if configPath == "" {
-		configPath = "config.yaml"
+		configPath = "/var/data/config.yaml"
 	}
 	cfg, err := config.New(configPath)
 	if err != nil {

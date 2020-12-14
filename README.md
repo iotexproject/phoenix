@@ -6,7 +6,7 @@ Let's take a simple example: you have certain data stored in Amazon S3 storage t
 
 First, register your data access endpoint into phoenix's database, in this example Amazon S3 storage (explained [here](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys)). This allows phoenix to access the data on behalf of delegated user later on.
 
-To register, send an HTTP POST request to <https://phoenix.iotex.io/register>. You can find details in API section [here](#register)
+To register, send an HTTP POST request to <https://phoenix.iotex.io:8080/register>. You can find details in API section [here](#register)
 
 Second, to allow your trusted user to access the data, you will need to issue them a piece of authentication token called JWT. It clearly specifies *what, by when, and how* the access is granted. For example, say you registered a data endpoint named **weather** and you want to grant user to be able to *read in next 12 hours*. The JWT will contain claims like:
 
