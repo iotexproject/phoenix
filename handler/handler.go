@@ -38,6 +38,10 @@ func NewStorageHandler(cfg *config.Config, cred auth.Credential) *StorageHandler
 }
 
 func (h *StorageHandler) ServerMux(r chi.Router) http.Handler {
+	r.Method(http.MethodGet, "/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+		return
+	}))
 	r.Group(func(r chi.Router) {
 		r.Use(midware.JWTTokenValid)
 		r.Use(midware.RateLimit(h.cfg.Server.RateLimit)...)
