@@ -1,13 +1,65 @@
-# phoenix-gem
+# phoenix
+Proxy for managing and securely delegating your data for trusted party's use 
 
-## install
+## How it works
+Let's take a simple example: you have certain data stored in Amazon S3 storage that you wanted to share with your trusted user so they can use it. The workflow consists of 3 steps:
+
+First, register your data access endpoint into phoenix's database, in this example Amazon S3 storage (explained [here](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys)). This allows phoenix to access the data on behalf of delegated user later on.
+
+To register, send an HTTP POST request to <https://phoenix.iotex.io/register>. You can find details in API section [here](#register)
+
+Second, to allow your trusted user to access the data, you will need to issue them a piece of authentication token called JWT. It clearly specifies *what, by when, and how* the access is granted. For example, say you registered a data endpoint named **weather** and you want to grant user to be able to *read in next 12 hours*. The JWT will contain claims like:
+
+```
+{
+  "exp": "1607772249", // 12 hours from issue time
+  "iat": "1605730464", // token issue time
+  "iss": "0x04c1bd03c5974777e512a38ff2037ea89772ac81dee6d204afc6dee60ac73238a127fdf383bd7d63387ec5e221026b2b314d3049cf304528d548ea926ea8a834c2",
+  "scope": "Read",  // can only read
+  "sub": "weather", // can only access data in 'weather'
+}  
+```
+
+For how to sign and issue JWT, see [here](https://docs.iotex.io/developer/ioctl/install.html)
+
+Finally, upon receiving the JWT, your trusted user can embed it into their HTTP request to access or operate on data. For details, see API section [here](#get)
+
+## Install
 
 ```
 make build
 make run #build + run
 ```
 
-## configure
+## Deploy
+1. Pull the docker image:
+```
+docker pull iotex/phoenix:latest
+```
+
+2. Set the environment with the following commands:
+```
+mkdir -p ~/iotex-phoenix
+cd ~/iotex-phoenix
+
+export IOTEX_HOME=$PWD
+```
+
+3. Download the default config file:
+```
+curl https://github.com/iotexproject/phoenix/blob/main/config.yaml > $IOTEX_HOME/config.yaml
+```
+
+4. Run the following command to start a node:
+```
+docker run -d --name phoenix \
+        -p 8080:8080 \
+        -v=$IOTEX_HOME:/var/data:rw \
+        iotex/phoenix:latest \
+        iotex-phoenix
+```
+
+## Configure
 ### use minio instead of s3
 ```
 docker run -p 9000:9000 \
@@ -27,7 +79,7 @@ s3:
   region: 
 ```
 
-## test
+## Test
 `test11` means bucket
 `foo.txt` means object in bucket
 ### create pod
@@ -58,7 +110,7 @@ curl http://localhost:8080/pea/test11
 
 ## API Documentation
 
-### Register storage 
+### <a name="register"/>Register storage 
 
 **URL**
 
@@ -255,7 +307,7 @@ curl --request POST \
   --header 'Authorization: Bearer <jwt token>' 
   --data 'hello, foobar'
 ```  
-### Get object
+### <a name="get"/>Get object
 
 **URL**
 
@@ -327,7 +379,6 @@ curl --request GET \
   --url http://localhost:8000/pea/test \
   --header 'Authorization: Bearer <jwt token>' 
 ```  
-
 
 ### Delete object
 
