@@ -8,7 +8,7 @@
 //      protoc --go_out=. *.proto
 syntax = "proto3";
 package storepb;
-option go_package = "github.com/iotexproject/phoenix-gem/auth/storepb";
+option go_package = "github.com/iotexproject/phoenix/auth/storepb";
 
 message Store {
   string name = 1;

@@ -13,7 +13,7 @@ GOLINT=golint
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
-BUILD_TARGET_SERVER=phoenix-gem
+BUILD_TARGET_SERVER=phoenix
 
 .PHONY: run
 

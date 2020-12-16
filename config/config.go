@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/iotexproject/phoenix-gem/log"
+	"github.com/iotexproject/phoenix/log"
 	"github.com/pkg/errors"
 )
 

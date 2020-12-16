@@ -1,8 +1,8 @@
 swagger: "2.0"
 info:
-  description: "This is a phoenix-gem storage service."
+  description: "This is a phoenix storage service."
   version: "1.0.0"
-  title: "phoenix-gem"
+  title: "phoenix"
   termsOfService: "http://swagger.io/terms/"
   contact:
     name: iotex-dev Team

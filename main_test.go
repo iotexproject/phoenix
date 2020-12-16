@@ -18,10 +18,10 @@ import (
 	"github.com/johannesboyne/gofakes3/backend/s3mem"
 	"github.com/stretchr/testify/require"
 
-	"github.com/iotexproject/phoenix-gem/config"
-	"github.com/iotexproject/phoenix-gem/handler"
-	"github.com/iotexproject/phoenix-gem/log"
-	"github.com/iotexproject/phoenix-gem/server"
+	"github.com/iotexproject/phoenix/config"
+	"github.com/iotexproject/phoenix/handler"
+	"github.com/iotexproject/phoenix/log"
+	"github.com/iotexproject/phoenix/server"
 )
 
 const (

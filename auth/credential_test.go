@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
-	"github.com/iotexproject/phoenix-gem/db"
+	"github.com/iotexproject/phoenix/db"
 )
 
 func TestCredential(t *testing.T) {

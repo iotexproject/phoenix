@@ -5,7 +5,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 
-	"github.com/iotexproject/phoenix-gem/auth/storepb"
+	"github.com/iotexproject/phoenix/auth/storepb"
 )
 
 type (

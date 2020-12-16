@@ -14,8 +14,8 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/httprate"
 	"github.com/iotexproject/go-pkgs/crypto"
-	"github.com/iotexproject/phoenix-gem/auth"
-	"github.com/iotexproject/phoenix-gem/config"
+	"github.com/iotexproject/phoenix/auth"
+	"github.com/iotexproject/phoenix/config"
 	"github.com/pkg/errors"
 )
 

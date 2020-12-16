@@ -15,12 +15,12 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/iotexproject/phoenix-gem/auth"
-	"github.com/iotexproject/phoenix-gem/config"
-	"github.com/iotexproject/phoenix-gem/db"
-	"github.com/iotexproject/phoenix-gem/handler/midware"
-	"github.com/iotexproject/phoenix-gem/log"
-	"github.com/iotexproject/phoenix-gem/storage"
+	"github.com/iotexproject/phoenix/auth"
+	"github.com/iotexproject/phoenix/config"
+	"github.com/iotexproject/phoenix/db"
+	"github.com/iotexproject/phoenix/handler/midware"
+	"github.com/iotexproject/phoenix/log"
+	"github.com/iotexproject/phoenix/storage"
 )
 
 type StorageHandler struct {

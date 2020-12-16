@@ -13,7 +13,7 @@ import (
 
 	"github.com/iotexproject/iotex-antenna-go/v2/jwt"
 
-	"github.com/iotexproject/phoenix-gem/auth"
+	"github.com/iotexproject/phoenix/auth"
 )
 
 // JWTTokenValid operation midware

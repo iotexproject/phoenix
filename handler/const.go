@@ -11,8 +11,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/iotexproject/phoenix-gem/auth"
-	"github.com/iotexproject/phoenix-gem/json"
+	"github.com/iotexproject/phoenix/auth"
+	"github.com/iotexproject/phoenix/json"
 	"github.com/pkg/errors"
 )
 

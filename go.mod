@@ -1,4 +1,4 @@
-module github.com/iotexproject/phoenix-gem
+module github.com/iotexproject/phoenix
 
 go 1.14
 

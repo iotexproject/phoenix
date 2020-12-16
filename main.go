@@ -15,9 +15,9 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/iotexproject/phoenix-gem/config"
-	"github.com/iotexproject/phoenix-gem/log"
-	"github.com/iotexproject/phoenix-gem/server"
+	"github.com/iotexproject/phoenix/config"
+	"github.com/iotexproject/phoenix/log"
+	"github.com/iotexproject/phoenix/server"
 )
 
 const (

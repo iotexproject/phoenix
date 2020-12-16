@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/iotexproject/phoenix-gem/db"
+	"github.com/iotexproject/phoenix/db"
 )
 
 type (

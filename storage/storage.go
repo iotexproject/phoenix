@@ -14,7 +14,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 
-	"github.com/iotexproject/phoenix-gem/auth"
+	"github.com/iotexproject/phoenix/auth"
 )
 
 type (
