@@ -20,7 +20,7 @@ Second, to allow your trusted user to access the data, you will need to issue th
 }  
 ```
 
-For how to sign and issue JWT, see [here](https://docs.iotex.io/developer/ioctl/install.html)
+For how to sign and issue JWT, see [here](https://docs.iotex.io/developer/ioctl/jwt.html)
 
 Finally, upon receiving the JWT, your trusted user can embed it into their HTTP request to access or operate on data. For details, see API section [here](#get)
 
