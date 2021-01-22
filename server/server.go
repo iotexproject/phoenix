@@ -21,6 +21,7 @@ import (
 	"github.com/iotexproject/phoenix/db"
 	"github.com/iotexproject/phoenix/handler"
 	"github.com/iotexproject/phoenix/log"
+	"github.com/iotexproject/phoenix/worker"
 )
 
 // Server struct
@@ -29,6 +30,8 @@ type Server struct {
 	cfg    *config.Config
 	log    *zap.Logger
 	userDB db.KVStore
+	//queue  diskqueue.Interface
+	worker *worker.Worker
 }
 
 // New return new Server instance
@@ -70,13 +73,15 @@ func (srv *Server) Start() error {
 		}))
 	}
 
+	var err error
 	// open db for user's storage endpoint
 	srv.userDB = db.NewBoltDB(srv.cfg.Server.DBPath)
-	if err := srv.userDB.Start(context.Background()); err != nil {
+	if err = srv.userDB.Start(context.Background()); err != nil {
 		srv.log.Error("start db", zap.Error(err))
 		return err
 	}
 
+	srv.worker = worker.New(5).Start(context.Background(), func(job worker.Job) { fmt.Printf("%s", job.Data) })
 	endpoint := fmt.Sprintf(":%s", srv.cfg.Server.Port)
 	h := handler.NewStorageHandler(srv.cfg, auth.NewCredential(srv.userDB))
 	srv.Server = &http.Server{

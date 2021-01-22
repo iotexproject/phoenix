@@ -41,10 +41,11 @@ type (
 		AllowedHeaders []string `yaml:"allowedHeaders" json:"allowedHeaders"`
 	}
 	Server struct {
-		Port      string    `yaml:"port" json:"port"`
-		RateLimit RateLimit `yaml:"rateLimit" json:"rateLimit"`
-		Cors      Cors      `yaml:"cors" json:"cors"`
-		DBPath    string    `yaml:"dbPath" json:"dbPath"`
+		Port        string    `yaml:"port" json:"port"`
+		RateLimit   RateLimit `yaml:"rateLimit" json:"rateLimit"`
+		Cors        Cors      `yaml:"cors" json:"cors"`
+		DBPath      string    `yaml:"dbPath" json:"dbPath"`
+		DBQueuePath string    `yaml:"dbQueuePath" json:"dbQueuePath"`
 	}
 	Config struct {
 		Pinata  Pinata                      `yaml:"pinata" json:"pinata"`

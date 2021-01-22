@@ -14,8 +14,8 @@ server:
   #   allowedOrigins: ["*"]
   #   allowedMethods: ["GET", "POST", "DELETE"]
   #   allowedHeaders: ["X-Custom-Header", "X-Foobar"]
-  dbPath: "/var/data/credential.db"
-  dbQueuePath: "/var/data/"
+  dbPath: "./credential.db"
+  dbQueuePath: "./"
 
 log:
   zap:
@@ -25,7 +25,7 @@ log:
     disableStacktrace: false
     outputPaths: ["stderr", "stdout"]
     errorOutputPaths: ["stderr"]
-  stderrRedirectFile: /var/data/error.log
+  stderrRedirectFile: ./error.log
   stdLogRedirect: true
 subLogs:
   handler:
@@ -36,5 +36,5 @@ subLogs:
       disableStacktrace: true
       outputPaths: ["stderr", "stdout"]
       errorOutputPaths: ["stderr"]
-    stderrRedirectFile: /var/data/error.log
+    stderrRedirectFile: ./error.log
     stdLogRedirect: true
